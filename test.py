@@ -9,5 +9,5 @@ for i in range(len(data)):
     print(response.json())
 
 input()
-response = requests.get(BASE + "match/6")
+response = requests.get(BASE + "match/0")
 print(response.json())
