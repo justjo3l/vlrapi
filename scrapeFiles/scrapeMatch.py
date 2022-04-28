@@ -1,10 +1,9 @@
 from distutils.fancy_getopt import wrap_text
-from ssl import match_hostname
 from selenium import webdriver
 from bs4 import BeautifulSoup
 import json
-import re
 import datetime
+import time as skip
 
 BASE = "https://www.vlr.gg"
 
@@ -33,7 +32,7 @@ def remove_indents(value):
     value = value.replace('\t', '')
     return value
 
-while counter != 10:
+while counter != 1:
     print("----" + str(counter) + "----")
     # Collects Content from Results Page
     driver.get("https://www.vlr.gg/matches/results")
@@ -143,14 +142,61 @@ while counter != 10:
     map_select = soup.find_all('div', 'vm-stats-gamesnav-item')
     for i in range(1,len(map_select)):
         if remove_indents(map_select[i].text.strip()[1:len(map_select[i].text.strip())]) != 'N/A':
-            map_page_url = BASE + map_select[i]['data-href']
-            # Collects Content from each Map Page
-            driver.get(map_page_url)
-            content = driver.page_source
-            soup = BeautifulSoup(content, 'lxml')
-            maps['map' + str(i)] = remove_indents(map_select[i].text.strip()[1:len(map_select[i].text.strip())])
+            map = {}
+            code = map_select[i]['data-game-id']
 
-    print(maps)
+            # Collects Content from the Match Page
+            driver.get(match_url)
+            content = driver.page_source
+
+            # Collects the Content for each Map
+            soup = BeautifulSoup(content, 'lxml').find(lambda tag: tag.name == 'div' and tag.get('class') == ['vm-stats-game'] and tag.get('data-game-id') == code)
+            if soup:
+                map_name = remove_indents(map_select[i].text.strip()[1:len(map_select[i].text.strip())])
+                time_played = soup.find('div', 'map-duration').text.strip()
+
+                # Finds the map name
+                map['name'] = map_name
+
+                # Finds the time played
+                map['time_played'] = time_played
+                score = {}
+
+                # Finds the team1 map score
+                score['team1'] = soup.find_all('div', 'score')[0].text.strip()
+
+                # Finds the team2 map score
+                score['team2'] = soup.find_all('div', 'score')[1].text.strip()
+
+                # Finds the team1 map attack score
+                score['team1_attack'] = soup.find_all('span', 'mod-t')[0].text.strip()
+
+                # Finds the team2 map attack score
+                score['team2_attack'] = soup.find_all('span', 'mod-t')[1].text.strip()
+
+                # Checks if overtime happened
+                if (len(soup.find_all('span', 'mod-ot')) > 0):
+
+                    # Finds the team1 map overtime score
+                    score['team1_overtime'] = soup.find_all('span', 'mod-ot')[0].text.strip()
+
+                    # Finds the team2 map overtime score
+                    score['team2_overtime'] = soup.find_all('span', 'mod-ot')[1].text.strip()
+
+                # Finds the team1 map defend score
+                score['team1_defend'] = soup.find_all('span', 'mod-ct')[0].text.strip()
+
+                # Finds the team2 map defend score
+                score['team2_defend'] = soup.find_all('span', 'mod-ct')[1].text.strip()
+
+                # Stores the scores to the map
+                map['score'] = score
+
+                # Stores the map to the maps
+                maps['map' + str(i)] = map
+
+    # Stores the maps
+    final_dict['maps'] = maps
 
 
     print(final_dict)
