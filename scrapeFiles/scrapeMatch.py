@@ -150,22 +150,32 @@ while counter != 3:
     # Stores the team1 and team2 names and urls
     final_dict['teams'] = {"team1" : team1, "team2" : team2}
 
+    solo = False
+
     # Finds the maps
     maps = {}
     map_select = soup.find_all('div', 'vm-stats-gamesnav-item')
+    if not map_select:
+        map_select.append("placeholder")
+        map_select.append("placeholder2")
+        solo = True
     for i in range(1,len(map_select)):
-        if remove_indents(map_select[i].text.strip()[1:len(map_select[i].text.strip())]) != 'N/A':
+        if solo or remove_indents(map_select[i].text.strip()[1:len(map_select[i].text.strip())]) != 'N/A':
             map = {}
-            code = map_select[i]['data-game-id']
+            if not solo:
+                code = map_select[i]['data-game-id']
 
             # Collects Content from the Match Page
             driver.get(match_url)
             content = driver.page_source
 
             # Collects the Content for each Map
-            soup = BeautifulSoup(content, 'lxml').find(lambda tag: tag.name == 'div' and tag.get('class') == ['vm-stats-game'] and tag.get('data-game-id') == code)
+            if not solo:
+                soup = BeautifulSoup(content, 'lxml').find(lambda tag: tag.name == 'div' and tag.get('class') == ['vm-stats-game'] and tag.get('data-game-id') == code)
+            else:
+                soup = BeautifulSoup(content, 'lxml').find('div', 'vm-stats-game')
             if soup:
-                map_name = remove_indents(map_select[i].text.strip()[1:len(map_select[i].text.strip())])
+                map_name = remove_indents(soup.find('div', 'map').div.text.strip())
                 time_played = soup.find('div', 'map-duration').text.strip()
 
                 # Finds the map name
@@ -215,43 +225,104 @@ while counter != 3:
                 players1 = players1_table.find_all('tr')
 
                 for j in range(1, len(players1)):
+
+                    # Stores player name
                     player['name'] = players1[j].find('td', 'mod-player').div.a.div.text.strip()
+
+                    # Stores player agent
                     player['agent'] = get_agent(players1[j].find('td', 'mod-agents').div.span.img['src'])
+
+                    # Stores player ACS
                     player['ACS'] = players1[j].find_all(lambda tag: tag.name == 'td' and tag.get('class') == ['mod-stat'])[0].span.find('span', 'mod-both').text.strip()
+                    
+                    # Stores player K
                     player['K'] = players1[j].find('td', 'mod-vlr-kills').span.find('span', 'mod-both').text.strip()
+                    
+                    # Stores player D
                     player['D'] = players1[j].find('td', 'mod-vlr-deaths').span.find('span', 'mod-both').text.strip()
+                    
+                    # Stores player A
                     player['A'] = players1[j].find('td', 'mod-vlr-assists').span.find('span', 'mod-both').text.strip()
+                    
+                    # Stores player KDA difference
                     player['KDA_difference'] = players1[j].find('td', 'mod-kd-diff').span.find('span', 'mod-both').text.strip()
+                    
+                    # Stores player KAST
                     player['KAST'] = players1[j].find_all(lambda tag: tag.name == 'td' and tag.get('class') == ['mod-stat'])[1].span.find('span', 'mod-both').text.strip()
+                    
+                    # Stores player ADR
                     player['ADR'] = players1[j].find_all(lambda tag: tag.name == 'td' and tag.get('class') == ['mod-stat'])[2].span.find('span', 'mod-both').text.strip()
+                    
+                    # Stores player HS%
                     player['HS%'] = players1[j].find_all(lambda tag: tag.name == 'td' and tag.get('class') == ['mod-stat'])[3].span.find('span', 'mod-both').text.strip()
+                    
+                    # Stores player FK
                     player['FK'] = players1[j].find('td', 'mod-fb').span.find('span', 'mod-both').text.strip()
+                    
+                    # Stores player FD
                     player['FD'] = players1[j].find('td', 'mod-fd').span.find('span', 'mod-both').text.strip()
+                    
+                    # Stores player FK difference
                     player['FK_difference'] = players1[j].find('td', 'mod-fk-diff').span.find('span', 'mod-both').text.strip()
+                    
+                    # Stores player to team1
                     team1['player' + str(j)] = player.copy()
+                    
+                # Stores team1 to players
                 players['team1'] = team1
 
                 players2_table = soup.find_all('table', 'wf-table-inset')[1]
                 players2 = players2_table.find_all('tr')
 
                 for j in range(1, len(players2)):
+
+                    # Stores player name
                     player['name'] = players2[j].find('td', 'mod-player').div.a.div.text.strip()
+
+                    # Stores player agent
                     player['agent'] = get_agent(players2[j].find('td', 'mod-agents').div.span.img['src'])
+
+                    # Stores player ACS
                     player['ACS'] = players2[j].find_all(lambda tag: tag.name == 'td' and tag.get('class') == ['mod-stat'])[0].span.find('span', 'mod-both').text.strip()
+                    
+                    # Stores player K
                     player['K'] = players2[j].find('td', 'mod-vlr-kills').span.find('span', 'mod-both').text.strip()
+                    
+                    # Stores player D
                     player['D'] = players2[j].find('td', 'mod-vlr-deaths').span.find('span', 'mod-both').text.strip()
+                    
+                    # Stores player A
                     player['A'] = players2[j].find('td', 'mod-vlr-assists').span.find('span', 'mod-both').text.strip()
+                    
+                    # Stores player KDA difference
                     player['KDA_difference'] = players2[j].find('td', 'mod-kd-diff').span.find('span', 'mod-both').text.strip()
+                    
+                    # Stores player KAST
                     player['KAST'] = players2[j].find_all(lambda tag: tag.name == 'td' and tag.get('class') == ['mod-stat'])[1].span.find('span', 'mod-both').text.strip()
+                    
+                    # Stores player ADR
                     player['ADR'] = players2[j].find_all(lambda tag: tag.name == 'td' and tag.get('class') == ['mod-stat'])[2].span.find('span', 'mod-both').text.strip()
+                    
+                    # Stores player HS%
                     player['HS%'] = players2[j].find_all(lambda tag: tag.name == 'td' and tag.get('class') == ['mod-stat'])[3].span.find('span', 'mod-both').text.strip()
+                    
+                    # Stores player FK
                     player['FK'] = players2[j].find('td', 'mod-fb').span.find('span', 'mod-both').text.strip()
+                    
+                    # Stores player FD
                     player['FD'] = players2[j].find('td', 'mod-fd').span.find('span', 'mod-both').text.strip()
+                    
+                    # Stores player FK Difference
                     player['FK_difference'] = players2[j].find('td', 'mod-fk-diff').span.find('span', 'mod-both').text.strip()
+                    
+                    # Stores player to team1
                     team2['player' + str(j)] = player.copy()
+
+                # Stores team2 to players
                 players['team2'] = team2
 
-                print(players)
+                # Stores the players to the map
+                map['players'] = players
 
                 # Stores the map to the maps
                 maps['map' + str(i)] = map
