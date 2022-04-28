@@ -78,7 +78,12 @@ class Match(Resource):
 
 
     def delete(self, match_id):
-        return '', 204
+        result = MatchModel.query.filter_by(id=match_id).first()
+        if not result:
+            abort(404, message="Could not find match with that ID")
+        db.session.delete(result)
+        db.session.commit()
+        return f'Deleted {match_id}', 204
  
 
 
