@@ -14,8 +14,9 @@ BASE = "https://www.vlr.gg"
 # Match Type - WORKS
 # Streams - WORKS
 # Vods - WORKS
-# Team1 Score - WORKS
-# Team2 Score - WORKS
+# Team Scores - WORKS
+# Team Names - WORKS
+# Team URLs - WORKS
 
 options = webdriver.ChromeOptions()
 options.add_argument("--start-maximized")
@@ -27,7 +28,12 @@ driver.set_window_size(1920, 1080)
 
 counter = 0
 
-while counter != 5:
+def remove_indents(value):
+    value = value.replace('\n', '')
+    value = value.replace('\t', '')
+    return value
+
+while counter != 10:
     print("----" + str(counter) + "----")
     # Collects Content from Results Page
     driver.get("https://www.vlr.gg/matches/results")
@@ -60,8 +66,7 @@ while counter != 5:
 
     # Finds the match name
     match_name = tournament_details.div.a.div.find_all('div')[1].text.strip()
-    match_name = match_name.replace('\n', '')
-    match_name = match_name.replace('\t', '')
+    match_name = remove_indents(match_name)
 
     # Finds the match name
     match_type = soup.find_all('div', 'match-header-vs-note')[1].text.strip()
@@ -117,7 +122,36 @@ while counter != 5:
     team2_score = score.find_all('span')[2].text.strip()
 
     # Stores the team1 and team2 scores
-    final_dict['score'] = {"team1_score" : team1_score, "team2_score" : team2_score}
+    final_dict['score'] = {"team1" : team1_score, "team2" : team2_score}
+
+    # Finds the teams
+    teams = soup.find_all('a', 'match-header-link')
+
+    # Finds the team1 name and url
+    team1_data = teams[0]
+    team1 = {"name" : team1_data.find('div', 'wf-title-med').text.strip(), "url" : BASE + team1_data['href']}
+
+    # Finds the team2 name and url
+    team2_data = teams[1]
+    team2 = {"name" : team2_data.find('div', 'wf-title-med').text.strip(), "url" : BASE + team2_data['href']}
+
+    # Stores the team1 and team2 names and urls
+    final_dict['teams'] = {"team1" : team1, "team2" : team2}
+
+    # Finds the maps
+    maps = {}
+    map_select = soup.find_all('div', 'vm-stats-gamesnav-item')
+    for i in range(1,len(map_select)):
+        if remove_indents(map_select[i].text.strip()[1:len(map_select[i].text.strip())]) != 'N/A':
+            map_page_url = BASE + map_select[i]['data-href']
+            # Collects Content from each Map Page
+            driver.get(map_page_url)
+            content = driver.page_source
+            soup = BeautifulSoup(content, 'lxml')
+            maps['map' + str(i)] = remove_indents(map_select[i].text.strip()[1:len(map_select[i].text.strip())])
+
+    print(maps)
+
 
     print(final_dict)
     counter += 1
