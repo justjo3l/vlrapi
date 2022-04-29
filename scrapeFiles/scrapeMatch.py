@@ -101,17 +101,17 @@ def find_matches(limit):
         # Finds the streams
         stream_titles = soup.find_all('div', 'match-streams-btn-embed')
         stream_links = soup.find_all('a', 'match-streams-btn-external')
-        streams = {}
+        streams = []
 
         # Finds each stream individually
         for i in range(0, len(stream_titles)):
             if (i < len(stream_links) and stream_links[i]):
-                streams['stream' + str(i+1)] = {'name' : stream_titles[i].text.strip(), 'url' : stream_links[i]['href']}
+                streams.append({'name' : stream_titles[i].text.strip(), 'url' : stream_links[i]['href']})
             else:
                 if (stream_titles[i].parent['href']):
-                    streams['stream' + str(i+1)] = {'name' : stream_titles[i].text.strip(), 'url' : stream_titles[i].parent['href']}
+                    streams.append({'name' : stream_titles[i].text.strip(), 'url' : stream_titles[i].parent['href']})
                 else:
-                    streams['stream' + str(i+1)] = {'name' : stream_titles[i].text.strip(), 'url' : 'N/A'}
+                    streams.append({'name' : stream_titles[i].text.strip(), 'url' : 'N/A'})
 
         # Stores the streams
         final_dict['streams'] = streams
@@ -119,12 +119,12 @@ def find_matches(limit):
         # Finds the vods
         vod_title = soup.find('div', 'match-vods')
         vod_links = vod_title.find_all('a')
-        vods = {}
+        vods = []
 
         # Finds each vod individually
         for i in range(0, len(vod_links)):
             if (vod_links[i]):
-                vods['vod' + str(i+1)] = {'name' : vod_links[i].text.strip(), 'url' : vod_links[i]['href']}
+                vods.append({'name' : vod_links[i].text.strip(), 'url' : vod_links[i]['href']})
 
         # Stores the vods
         final_dict['vods'] = vods
@@ -218,8 +218,8 @@ def find_matches(limit):
 
                     players = {}
 
-                    team1 = {}
-                    team2 = {}
+                    team1 = []
+                    team2 = []
                     player = {}
 
                     players1_table = soup.find_all('table', 'wf-table-inset')[0]
@@ -267,7 +267,7 @@ def find_matches(limit):
                         player['FK_difference'] = players1[j].find('td', 'mod-fk-diff').span.find('span', 'mod-both').text.strip()
                         
                         # Stores player to team1
-                        team1['player' + str(j)] = player.copy()
+                        team1.append(player.copy())
                         
                     # Stores team1 to players
                     players['team1'] = team1
@@ -317,7 +317,7 @@ def find_matches(limit):
                         player['FK_difference'] = players2[j].find('td', 'mod-fk-diff').span.find('span', 'mod-both').text.strip()
                         
                         # Stores player to team1
-                        team2['player' + str(j)] = player.copy()
+                        team2.append(player.copy())
 
                     # Stores team2 to players
                     players['team2'] = team2
@@ -326,7 +326,7 @@ def find_matches(limit):
                     map['players'] = players
 
                     # Stores the map to the maps
-                    maps['map' + str(i)] = map
+                    maps.append(map)
 
         # Stores the maps
         final_dict['maps'] = maps
@@ -337,6 +337,6 @@ def find_matches(limit):
 
     driver.close()
 
-    final_json = json.dumps(final_dict, indent=4)
+    final_dict = json.dumps(final_dict)
 
-    return final_json
+    return json.loads(final_dict)
