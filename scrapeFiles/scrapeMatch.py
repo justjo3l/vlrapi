@@ -46,6 +46,7 @@ def find_matches(limit):
     driver.set_window_size(1920, 1080)
 
     counter = 0
+    final_list = []
 
     while counter != limit:
         # Collects Content from Results Page
@@ -63,7 +64,7 @@ def find_matches(limit):
         soup = BeautifulSoup(content, 'lxml')
 
 
-        final_dict = {}
+        temp_dict = {}
 
         # Finds the tournament details
         tournament_details = soup.find('div', 'match-header-super')
@@ -75,7 +76,7 @@ def find_matches(limit):
         tournament_url = BASE + tournament_details.div.a['href']
 
         # Stores the tournament name and URL
-        final_dict['tournament'] = {'name' : tournament_name, 'url' : tournament_url}
+        temp_dict['tournament'] = {'name' : tournament_name, 'url' : tournament_url}
 
         # Finds the match name
         match_name = tournament_details.div.a.div.find_all('div')[1].text.strip()
@@ -85,7 +86,7 @@ def find_matches(limit):
         match_type = soup.find_all('div', 'match-header-vs-note')[1].text.strip()
 
         # Stores the match name and match type
-        final_dict['match'] = {"name" : match_name, "type" : match_type}
+        temp_dict['match'] = {"name" : match_name, "type" : match_type}
 
         # Finds the date and time
         date_time_info = soup.find('div', 'moment-tz-convert')
@@ -93,10 +94,10 @@ def find_matches(limit):
         time = date_time_info['data-utc-ts'].split()[1]
 
         # Stores the date
-        final_dict['date'] = date
+        temp_dict['date'] = date
 
         # Stores the time
-        final_dict['time'] = time
+        temp_dict['time'] = time
 
         # Finds the streams
         stream_titles = soup.find_all('div', 'match-streams-btn-embed')
@@ -114,7 +115,7 @@ def find_matches(limit):
                     streams.append({'name' : stream_titles[i].text.strip(), 'url' : 'N/A'})
 
         # Stores the streams
-        final_dict['streams'] = streams
+        temp_dict['streams'] = streams
 
         # Finds the vods
         vod_title = soup.find('div', 'match-vods')
@@ -127,7 +128,7 @@ def find_matches(limit):
                 vods.append({'name' : vod_links[i].text.strip(), 'url' : vod_links[i]['href']})
 
         # Stores the vods
-        final_dict['vods'] = vods
+        temp_dict['vods'] = vods
 
         # Finds the team1 and team2 scores
         score = soup.find_all('div', 'match-header-vs-score')[1]
@@ -135,7 +136,7 @@ def find_matches(limit):
         team2_score = score.find_all('span')[2].text.strip()
 
         # Stores the team1 and team2 scores
-        final_dict['score'] = {"team1" : team1_score, "team2" : team2_score}
+        temp_dict['score'] = {"team1" : team1_score, "team2" : team2_score}
 
         # Finds the teams
         teams = soup.find_all('a', 'match-header-link')
@@ -149,12 +150,15 @@ def find_matches(limit):
         team2 = {"name" : team2_data.find('div', 'wf-title-med').text.strip(), "url" : BASE + team2_data['href']}
 
         # Stores the team1 and team2 names and urls
-        final_dict['teams'] = {"team1" : team1, "team2" : team2}
+        teams = []
+        teams.append(team1)
+        teams.append(team2)
+        temp_dict['teams'] = teams
 
         solo = False
 
         # Finds the maps
-        maps = {}
+        maps = []
         map_select = soup.find_all('div', 'vm-stats-gamesnav-item')
         if not map_select:
             map_select.append("placeholder")
@@ -329,14 +333,19 @@ def find_matches(limit):
                     maps.append(map)
 
         # Stores the maps
-        final_dict['maps'] = maps
+        temp_dict['maps'] = maps
+
+        final_list.append(temp_dict)
 
 
-        print(final_dict)
+        print(temp_dict)
         counter += 1
 
     driver.close()
 
-    final_dict = json.dumps(final_dict)
+    matches = {}
+    matches['data'] = final_list
 
-    return json.loads(final_dict)
+    matches = json.dumps(matches)
+
+    return json.loads(matches)
