@@ -2,6 +2,8 @@ from flask import Flask
 from flask_restful import Api, Resource, reqparse, abort, fields, marshal_with
 from flask_sqlalchemy import SQLAlchemy
 
+from scrapeFiles import scrapeMatch
+
 app = Flask(__name__)
 api = Api(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -40,7 +42,8 @@ resource_fields = {
 class Match(Resource):
     @marshal_with(resource_fields)
     def get(self, match_id):
-        result = MatchModel.query.filter_by(id=match_id).first()
+        #result = MatchModel.query.filter_by(id=match_id).first()
+        result = scrapeMatch.find_matches(match_id)
         if not result:
             abort(404, message="Could not find match with that ID")
         return result
