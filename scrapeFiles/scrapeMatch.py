@@ -42,7 +42,7 @@ def find_matches(limit):
     options.add_argument("--start-maximized")
     options.add_argument("--log-level=3")
 
-    driver = webdriver.Chrome("/tmp/" + ChromeDriverManager().install(), options=options)
+    driver = webdriver.Chrome("/tmp" + ChromeDriverManager().install(), options=options)
 
     driver.set_window_size(1920, 1080)
 
