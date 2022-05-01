@@ -1,5 +1,6 @@
 from distutils.fancy_getopt import wrap_text
 from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 import json
 import datetime
@@ -41,7 +42,7 @@ def find_matches(limit):
     options.add_argument("--start-maximized")
     options.add_argument("--log-level=3")
 
-    driver = webdriver.Chrome(executable_path="chromedriver", options=options)
+    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
 
     driver.set_window_size(1920, 1080)
 
