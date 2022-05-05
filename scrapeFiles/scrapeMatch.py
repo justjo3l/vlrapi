@@ -47,17 +47,26 @@ def find_matches(limit):
     driver.set_window_size(1920, 1080)
 
     counter = 0
+    page = int(0)
     final_list = []
 
     while counter != limit:
         # Collects Content from Results Page
-        driver.get("https://www.vlr.gg/matches/results")
+        page = int(counter / 50)
+
+        value = counter % 50
+
+        if (page == 0):
+            driver.get("https://www.vlr.gg/matches/results")
+        else:
+            driver.get(f"https://www.vlr.gg/matches/results/?page={page + 1}")
+
         content = driver.page_source
         soup = BeautifulSoup(content, 'lxml')
 
         # Finds Match URL
         urls = soup.find_all('a', 'wf-module-item')
-        match_url = BASE + urls[counter]['href']
+        match_url = BASE + urls[value]['href']
 
         # Collects Content from Specific Match Page
         driver.get(match_url)
@@ -233,44 +242,83 @@ def find_matches(limit):
                     for j in range(1, len(players1)):
 
                         # Stores player name
-                        player['name'] = players1[j].find('td', 'mod-player').div.a.div.text.strip()
+                        if (players1[j].find('td', 'mod-player').div.a.div.text):
+                            player['name'] = players1[j].find('td', 'mod-player').div.a.div.text.strip()
+                        else:
+                            player['name'] = 'N/A'
 
                         # Stores player agent
-                        player['agent'] = get_agent(players1[j].find('td', 'mod-agents').div.span.img['src'])
+                        if (players1[j].find('td', 'mod-agents').div.span.img):
+                            player['agent'] = get_agent(players1[j].find('td', 'mod-agents').div.span.img['src'])
+                        else:
+                            player['agent'] = 'N/A'
 
                         # Stores player ACS
-                        player['ACS'] = players1[j].find_all(lambda tag: tag.name == 'td' and tag.get('class') == ['mod-stat'])[0].span.find('span', 'mod-both').text.strip()
-                        
+                        if (players1[j].find_all(lambda tag: tag.name == 'td' and tag.get('class') == ['mod-stat'])[0].span.find('span', 'mod-both').text):
+                            player['ACS'] = players1[j].find_all(lambda tag: tag.name == 'td' and tag.get('class') == ['mod-stat'])[0].span.find('span', 'mod-both').text.strip()
+                        else:
+                            player['ACS'] = 'N/A'
+
                         # Stores player K
-                        player['K'] = players1[j].find('td', 'mod-vlr-kills').span.find('span', 'mod-both').text.strip()
+                        if (players1[j].find('td', 'mod-vlr-kills').span.find('span', 'mod-both').text):
+                            player['K'] = players1[j].find('td', 'mod-vlr-kills').span.find('span', 'mod-both').text.strip()
+                        else:
+                            player['K'] = 'N/A'
                         
                         # Stores player D
-                        player['D'] = players1[j].find('td', 'mod-vlr-deaths').span.find('span', 'mod-both').text.strip()
+                        if (players1[j].find('td', 'mod-vlr-deaths').span.find('span', 'mod-both').text):
+                            player['D'] = players1[j].find('td', 'mod-vlr-deaths').span.find('span', 'mod-both').text.strip()
+                        else:
+                            player['D'] = 'N/A'
                         
                         # Stores player A
-                        player['A'] = players1[j].find('td', 'mod-vlr-assists').span.find('span', 'mod-both').text.strip()
+                        if (players1[j].find('td', 'mod-vlr-assists').span.find('span', 'mod-both').text):
+                            player['A'] = players1[j].find('td', 'mod-vlr-assists').span.find('span', 'mod-both').text.strip()
+                        else:
+                            player['A'] = 'N/A'
                         
                         # Stores player KDA difference
-                        player['KDA_difference'] = players1[j].find('td', 'mod-kd-diff').span.find('span', 'mod-both').text.strip()
-                        
+                        if (players1[j].find('td', 'mod-kd-diff').span.find('span', 'mod-both').text):
+                            player['KDA_difference'] = players1[j].find('td', 'mod-kd-diff').span.find('span', 'mod-both').text.strip()
+                        else:
+                            player['KDA_difference'] = 'N/A'
+
                         # Stores player KAST
-                        player['KAST'] = players1[j].find_all(lambda tag: tag.name == 'td' and tag.get('class') == ['mod-stat'])[1].span.find('span', 'mod-both').text.strip()
-                        
+                        if (players1[j].find_all(lambda tag: tag.name == 'td' and tag.get('class') == ['mod-stat'])[1].span.find('span', 'mod-both').text):
+                            player['KAST'] = players1[j].find_all(lambda tag: tag.name == 'td' and tag.get('class') == ['mod-stat'])[1].span.find('span', 'mod-both').text.strip()
+                        else:
+                            player['KAST'] = 'N/A'
+
                         # Stores player ADR
-                        player['ADR'] = players1[j].find_all(lambda tag: tag.name == 'td' and tag.get('class') == ['mod-stat'])[2].span.find('span', 'mod-both').text.strip()
-                        
+                        if (players1[j].find_all(lambda tag: tag.name == 'td' and tag.get('class') == ['mod-stat'])[2].span.find('span', 'mod-both').text):
+                            player['ADR'] = players1[j].find_all(lambda tag: tag.name == 'td' and tag.get('class') == ['mod-stat'])[2].span.find('span', 'mod-both').text.strip()
+                        else:
+                            player['ADR'] = 'N/A'
+
                         # Stores player HS%
-                        player['HS%'] = players1[j].find_all(lambda tag: tag.name == 'td' and tag.get('class') == ['mod-stat'])[3].span.find('span', 'mod-both').text.strip()
-                        
+                        if (players1[j].find_all(lambda tag: tag.name == 'td' and tag.get('class') == ['mod-stat'])[3].span.find('span', 'mod-both').text):
+                            player['HS%'] = players1[j].find_all(lambda tag: tag.name == 'td' and tag.get('class') == ['mod-stat'])[3].span.find('span', 'mod-both').text.strip()
+                        else:
+                            player['HS%'] = 'N/A'
+
                         # Stores player FK
-                        player['FK'] = players1[j].find('td', 'mod-fb').span.find('span', 'mod-both').text.strip()
+                        if (players1[j].find('td', 'mod-fb').span.find('span', 'mod-both').text):
+                            player['FK'] = players1[j].find('td', 'mod-fb').span.find('span', 'mod-both').text.strip()
+                        else:
+                            player['FK'] = 'N/A'
                         
                         # Stores player FD
-                        player['FD'] = players1[j].find('td', 'mod-fd').span.find('span', 'mod-both').text.strip()
+                        if (players1[j].find('td', 'mod-fd').span.find('span', 'mod-both').text):
+                            player['FD'] = players1[j].find('td', 'mod-fd').span.find('span', 'mod-both').text.strip()
+                        else:
+                            player['FD'] = 'N/A'
                         
                         # Stores player FK difference
-                        player['FK_difference'] = players1[j].find('td', 'mod-fk-diff').span.find('span', 'mod-both').text.strip()
-                        
+                        if (players1[j].find('td', 'mod-fk-diff').span.find('span', 'mod-both').text):
+                            player['FK_difference'] = players1[j].find('td', 'mod-fk-diff').span.find('span', 'mod-both').text.strip()
+                        else:
+                            player['FK_difference'] = 'N/A'
+
                         # Stores player to team1
                         team1.append(player.copy())
                         
