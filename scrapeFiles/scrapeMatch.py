@@ -42,7 +42,7 @@ def find_matches(limit):
     options.add_argument("--start-maximized")
     options.add_argument("--log-level=3")
 
-    driver = webdriver.Chrome("/tmp" + ChromeDriverManager().install(), options=options)
+    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
 
     driver.set_window_size(1920, 1080)
 
@@ -102,7 +102,7 @@ def find_matches(limit):
 
         # Finds the streams
         stream_titles = soup.find_all('div', 'match-streams-btn-embed')
-        stream_links = soup.find_all('a', 'match-streams-btn-external')
+        stream_links = soup.find_all('a', 'match-streams-btn-external') + soup.find_all('a', 'match-streams-btn')
         streams = []
 
         # Finds each stream individually
@@ -110,8 +110,8 @@ def find_matches(limit):
             if (i < len(stream_links) and stream_links[i]):
                 streams.append({'name' : stream_titles[i].text.strip(), 'url' : stream_links[i]['href']})
             else:
-                if (stream_titles[i].parent['href']):
-                    streams.append({'name' : stream_titles[i].text.strip(), 'url' : stream_titles[i].parent['href']})
+                if (stream_links[i].parent['href']):
+                    streams.append({'name' : stream_titles[i].text.strip(), 'url' : stream_links[i].parent['href']})
                 else:
                     streams.append({'name' : stream_titles[i].text.strip(), 'url' : 'N/A'})
 
