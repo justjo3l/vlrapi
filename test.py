@@ -7,5 +7,8 @@ BASE = "http://127.0.0.1:5000/"
 #     print(response.json())
 # input()
 
-response = requests.get(BASE + "match/1")
+response = requests.get(BASE + "matches/1")
+print(response.json())
+input()
+response = requests.get(BASE + "match/6")
 print(response.json())
