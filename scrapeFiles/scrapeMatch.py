@@ -17,6 +17,10 @@ def get_agent(value):
     value = value.title()
     return value
 
+def remove_pick(value):
+    value = value.replace('PICK', '')
+    return value
+
 def find_match(id):
 
     BASE = "https://www.vlr.gg"
@@ -189,7 +193,7 @@ def find_match(id):
             else:
                 soup = BeautifulSoup(content, 'lxml').find('div', 'vm-stats-game')
             if soup:
-                map_name = remove_indents(soup.find('div', 'map').div.text.strip())
+                map_name = remove_pick(remove_indents(soup.find('div', 'map').div.text.strip()))
                 time_played = soup.find('div', 'map-duration').text.strip()
 
                 # Finds the map name
