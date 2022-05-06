@@ -39,12 +39,13 @@ def find_matches(limit):
     # Map Players - WORKS
 
     options = webdriver.ChromeOptions()
-    options.add_argument("--start-maximized")
     options.add_argument("--log-level=3")
+    options.add_argument("--headless")
+
+    prefs = {"profile.managed_default_content_settings.images": 2}
+    options.add_experimental_option("prefs", prefs)
 
     driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
-
-    driver.set_window_size(1920, 1080)
 
     counter = 0
     page = int(0)
@@ -181,8 +182,8 @@ def find_matches(limit):
                     code = map_select[i]['data-game-id']
 
                 # Collects Content from the Match Page
-                driver.get(match_url)
-                content = driver.page_source
+                # driver.get(match_url)
+                # content = driver.page_source
 
                 # Collects the Content for each Map
                 if not solo:
