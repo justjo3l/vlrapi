@@ -25,23 +25,6 @@ def find_match(id):
 
     BASE = "https://www.vlr.gg"
 
-    # Tournament Name - WORKS
-    # Tournament URL - WORKS
-    # Match Name - WORKS
-    # Match Type - WORKS
-    # Streams - WORKS
-    # Vods - WORKS
-    # Team Scores - WORKS
-    # Team Names - WORKS
-    # Team URLs - WORKS
-    # Map Name - WORKS
-    # Map Time Played - WORKS
-    # Map Score - WORKS
-    # Map Team Attack Scores - WORK
-    # Map Team Defend Scores - WORK
-    # Map Team Overtime Scores - WORK
-    # Map Players - WORKS
-
     options = webdriver.ChromeOptions()
     options.add_argument("--log-level=3")
     options.add_argument("--headless")
