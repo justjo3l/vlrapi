@@ -13,24 +13,12 @@
 ```javascript
 {
     "data": {
-        "tournament": {
-            "name": str,
-            "url": str
-        },
-        "match": {
-            "name": str,
-            "type": str
-        },
-        "date": str,
-        "time": str,
-        "score": {
-            "team1": str,
-            "team2": str
-        },
+        "tournament": str,
+        "match": str,
         "teams": [
             {
                 "name": str,
-                "url": str
+                "score": str
             }
         ]
     }
@@ -125,24 +113,12 @@
 {
     "data": [
         {
-            "tournament": {
-                "name": str,
-                "url": str
-            },
-            "match": {
-                "name": str,
-                "type": str
-            },
-            "date": str,
-            "time": str,
-            "score": {
-                "team1": str,
-                "team2": str
-            },
+            "tournament": str,
+            "match": str,
             "teams": [
                 {
                     "name": str,
-                    "url": str
+                    "score": str
                 }
             ]
         }
