@@ -4,7 +4,7 @@
 # Current Endpoints
  All endpoints are relative to ().
  
-### ```/match/<id>/preview```
+### ```/match/<id>```
 
 - Method: ```GET```
 - ID: Index of match
@@ -115,7 +115,7 @@
 }
 ```
 
-### ```/matches/<count>/preview```
+### ```/matches/<count>```
 
 - Method: ```GET```
 - Count: Number of matches
