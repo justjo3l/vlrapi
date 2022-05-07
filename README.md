@@ -2,7 +2,7 @@
  An Unofficial REST API for [vlr.gg](https://www.vlr.gg/), the website for Valorant Esports matches, news and data.
 
 # Current Endpoints
- All endpoints are relative to ().
+ Not active at any public endpoints yet.
  
 ### ```/match/<id>```
 
@@ -13,24 +13,12 @@
 ```javascript
 {
     "data": {
-        "tournament": {
-            "name": str,
-            "url": str
-        },
-        "match": {
-            "name": str,
-            "type": str
-        },
-        "date": str,
-        "time": str,
-        "score": {
-            "team1": str,
-            "team2": str
-        },
+        "tournament": str,
+        "match": str,
         "teams": [
             {
                 "name": str,
-                "url": str
+                "score": str
             }
         ]
     }
@@ -125,24 +113,12 @@
 {
     "data": [
         {
-            "tournament": {
-                "name": str,
-                "url": str
-            },
-            "match": {
-                "name": str,
-                "type": str
-            },
-            "date": str,
-            "time": str,
-            "score": {
-                "team1": str,
-                "team2": str
-            },
+            "tournament": str,
+            "match": str,
             "teams": [
                 {
                     "name": str,
-                    "url": str
+                    "score": str
                 }
             ]
         }
