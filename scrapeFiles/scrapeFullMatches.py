@@ -21,9 +21,7 @@ def remove_pick(value):
     value = value.replace('PICK', '')
     return value
 
-def find_match(id, type):
-
-    match = {}
+def find_matches(count):
 
     BASE = "https://www.vlr.gg"
 
@@ -35,97 +33,99 @@ def find_match(id, type):
     options.add_experimental_option("prefs", prefs)
 
     driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+
+    counter = 0
     page = int(0)
 
-    id = id - 1
+    matches = {}
 
-    # Collects Content from Results Page
-    page = int(id / 50)
+    final_list = []
 
-    value = id % 50
+    while counter != count:
+        # Collects Content from Results Page
+        page = int(counter / 50)
 
-    if (page == 0):
-        driver.get("https://www.vlr.gg/matches/results")
-    else:
-        driver.get(f"https://www.vlr.gg/matches/results/?page={page + 1}")
+        value = counter % 50
 
-    content = driver.page_source
-    soup = BeautifulSoup(content, 'lxml')
+        if (page == 0):
+            driver.get("https://www.vlr.gg/matches/results")
+        else:
+            driver.get(f"https://www.vlr.gg/matches/results/?page={page + 1}")
 
-    # Finds Match URL
-    urls = soup.find_all('a', 'wf-module-item')
-    match_url = BASE + urls[value]['href']
+        content = driver.page_source
+        soup = BeautifulSoup(content, 'lxml')
 
-    # Collects Content from Specific Match Page
-    driver.get(match_url)
-    content = driver.page_source
-    soup = BeautifulSoup(content, 'lxml')
+        # Finds Match URL
+        urls = soup.find_all('a', 'wf-module-item')
+        match_url = BASE + urls[value]['href']
+
+        # Collects Content from Specific Match Page
+        driver.get(match_url)
+        content = driver.page_source
+        soup = BeautifulSoup(content, 'lxml')
 
 
-    temp_dict = {}
+        temp_dict = {}
 
-    # Finds the tournament details
-    tournament_details = soup.find('div', 'match-header-super')
+        # Finds the tournament details
+        tournament_details = soup.find('div', 'match-header-super')
 
-    # Finds the tournament name
-    tournament_name = tournament_details.div.a.div.div.text.strip()
+        # Finds the tournament name
+        tournament_name = tournament_details.div.a.div.div.text.strip()
 
-    # Finds the tournament URL
-    tournament_url = BASE + tournament_details.div.a['href']
+        # Finds the tournament URL
+        tournament_url = BASE + tournament_details.div.a['href']
 
-    # Stores the tournament name and URL
-    temp_dict['tournament'] = {'name' : tournament_name, 'url' : tournament_url}
+        # Stores the tournament name and URL
+        temp_dict['tournament'] = {'name' : tournament_name, 'url' : tournament_url}
 
-    # Finds the match name
-    match_name = tournament_details.div.a.div.find_all('div')[1].text.strip()
-    match_name = remove_indents(match_name)
+        # Finds the match name
+        match_name = tournament_details.div.a.div.find_all('div')[1].text.strip()
+        match_name = remove_indents(match_name)
 
-    # Finds the match name
-    match_type = soup.find_all('div', 'match-header-vs-note')[1].text.strip()
+        # Finds the match name
+        match_type = soup.find_all('div', 'match-header-vs-note')[1].text.strip()
 
-    # Stores the match name and match type
-    temp_dict['match'] = {"name" : match_name, "type" : match_type}
+        # Stores the match name and match type
+        temp_dict['match'] = {"name" : match_name, "type" : match_type}
 
-    # Finds the date and time
-    date_time_info = soup.find('div', 'moment-tz-convert')
-    date = datetime.datetime.strptime(date_time_info['data-utc-ts'].split()[0], "%Y-%m-%d").strftime("%d/%m/%Y")
-    time = date_time_info['data-utc-ts'].split()[1]
+        # Finds the date and time
+        date_time_info = soup.find('div', 'moment-tz-convert')
+        date = datetime.datetime.strptime(date_time_info['data-utc-ts'].split()[0], "%Y-%m-%d").strftime("%d/%m/%Y")
+        time = date_time_info['data-utc-ts'].split()[1]
 
-    # Stores the date
-    temp_dict['date'] = date
+        # Stores the date
+        temp_dict['date'] = date
 
-    # Stores the time
-    temp_dict['time'] = time
+        # Stores the time
+        temp_dict['time'] = time
 
-    # Finds the team1 and team2 scores
-    score = soup.find_all('div', 'match-header-vs-score')[1]
-    team1_score = score.find_all('span')[0].text.strip()
-    team2_score = score.find_all('span')[2].text.strip()
+        # Finds the team1 and team2 scores
+        score = soup.find_all('div', 'match-header-vs-score')[1]
+        team1_score = score.find_all('span')[0].text.strip()
+        team2_score = score.find_all('span')[2].text.strip()
 
-    # Stores the team1 and team2 scores
-    temp_dict['score'] = {"team1" : team1_score, "team2" : team2_score}
+        # Stores the team1 and team2 scores
+        temp_dict['score'] = {"team1" : team1_score, "team2" : team2_score}
 
-    # Finds the teams
-    teams = soup.find_all('a', 'match-header-link')
+        # Finds the teams
+        teams = soup.find_all('a', 'match-header-link')
 
-    # Finds the team1 name and url
-    team1_data = teams[0]
-    team1 = {"name" : team1_data.find('div', 'wf-title-med').text.strip(), "url" : BASE + team1_data['href']}
+        # Finds the team1 name and url
+        team1_data = teams[0]
+        team1 = {"name" : team1_data.find('div', 'wf-title-med').text.strip(), "url" : BASE + team1_data['href']}
 
-    # Finds the team2 name and url
-    team2_data = teams[1]
-    team2 = {"name" : team2_data.find('div', 'wf-title-med').text.strip(), "url" : BASE + team2_data['href']}
+        # Finds the team2 name and url
+        team2_data = teams[1]
+        team2 = {"name" : team2_data.find('div', 'wf-title-med').text.strip(), "url" : BASE + team2_data['href']}
 
-    # Stores the team1 and team2 names and urls
-    teams = []
-    teams.append(team1)
-    teams.append(team2)
-    temp_dict['teams'] = teams
+        # Stores the team1 and team2 names and urls
+        teams = []
+        teams.append(team1)
+        teams.append(team2)
+        temp_dict['teams'] = teams
 
-    solo = False
-
-    # Checks if type received is full
-    if (type == "full"):
+        solo = False
 
         # Finds the streams
         stream_titles = soup.find_all('div', 'match-streams-btn-embed')
@@ -411,15 +411,19 @@ def find_match(id, type):
                     # Stores the map to the maps
                     maps.append(map)
 
-            # Stores the maps
-            temp_dict['maps'] = maps
+        # Stores the maps
+        temp_dict['maps'] = maps
+
+        final_list.append(temp_dict)
+
 
         print(temp_dict)
+        counter += 1
 
     driver.close()
 
-    match['data'] = temp_dict
+    matches['data'] = final_list
 
-    match = json.dumps(match)
+    matches = json.dumps(matches)
 
-    return json.loads(match)
+    return json.loads(matches)
