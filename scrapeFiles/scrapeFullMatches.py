@@ -1,6 +1,4 @@
-from distutils.fancy_getopt import wrap_text
-from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
+import requests
 from bs4 import BeautifulSoup
 import json
 import datetime
@@ -24,16 +22,6 @@ def remove_pick(value):
 def find_matches(count):
 
     BASE = "https://www.vlr.gg"
-
-    options = webdriver.ChromeOptions()
-    options.add_argument("--log-level=3")
-    options.add_argument("--headless")
-
-    prefs = {"profile.managed_default_content_settings.images": 2}
-    options.add_experimental_option("prefs", prefs)
-
-    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
-
     counter = 0
     page = int(0)
 
@@ -48,21 +36,19 @@ def find_matches(count):
         value = counter % 50
 
         if (page == 0):
-            driver.get("https://www.vlr.gg/matches/results")
+            r = requests.get("https://www.vlr.gg/matches/results")
         else:
-            driver.get(f"https://www.vlr.gg/matches/results/?page={page + 1}")
+            r = requests.get(f"https://www.vlr.gg/matches/results/?page={page + 1}")
 
-        content = driver.page_source
-        soup = BeautifulSoup(content, 'lxml')
+        soup = BeautifulSoup(r.content, 'html.parser')
 
         # Finds Match URL
         urls = soup.find_all('a', 'wf-module-item')
         match_url = BASE + urls[value]['href']
 
         # Collects Content from Specific Match Page
-        driver.get(match_url)
-        content = driver.page_source
-        soup = BeautifulSoup(content, 'lxml')
+        r = requests.get(match_url)
+        soup = BeautifulSoup(r.content, 'html.parser')
 
 
         temp_dict = {}
@@ -177,9 +163,9 @@ def find_matches(count):
 
                 # Collects the Content for each Map
                 if not solo:
-                    soup = BeautifulSoup(content, 'lxml').find(lambda tag: tag.name == 'div' and tag.get('class') == ['vm-stats-game'] and tag.get('data-game-id') == code)
+                    soup = BeautifulSoup(r.content, 'html.parser').find(lambda tag: tag.name == 'div' and tag.get('class') == ['vm-stats-game'] and tag.get('data-game-id') == code)
                 else:
-                    soup = BeautifulSoup(content, 'lxml').find('div', 'vm-stats-game')
+                    soup = BeautifulSoup(r.content, 'html.parser').find('div', 'vm-stats-game')
                 if soup:
                     map_name = remove_pick(remove_indents(soup.find('div', 'map').div.text.strip()))
                     time_played = soup.find('div', 'map-duration').text.strip()
@@ -419,8 +405,6 @@ def find_matches(count):
 
         print(temp_dict)
         counter += 1
-
-    driver.close()
 
     matches['data'] = final_list
 

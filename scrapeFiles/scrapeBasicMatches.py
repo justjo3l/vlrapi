@@ -1,9 +1,6 @@
-from distutils.fancy_getopt import wrap_text
-from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
+import requests
 from bs4 import BeautifulSoup
 import json
-import datetime
 
 def remove_indents(value):
     value = value.replace('\n', '')
@@ -13,16 +10,6 @@ def remove_indents(value):
 def find_matches(count):
 
     BASE = "https://www.vlr.gg"
-
-    options = webdriver.ChromeOptions()
-    options.add_argument("--log-level=3")
-    options.add_argument("--headless")
-
-    prefs = {"profile.managed_default_content_settings.images": 2}
-    options.add_experimental_option("prefs", prefs)
-
-    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
-
     counter = 0
     page = int(0)
 
@@ -38,12 +25,11 @@ def find_matches(count):
         value = counter % 50
 
         if (page == 0):
-            driver.get("https://www.vlr.gg/matches/results")
+            r = requests.get("https://www.vlr.gg/matches/results")
         else:
-            driver.get(f"https://www.vlr.gg/matches/results/?page={page + 1}")
+            r = requests.get(f"https://www.vlr.gg/matches/results/?page={page + 1}")
 
-        content = driver.page_source
-        soup = BeautifulSoup(content, 'lxml')
+        soup = BeautifulSoup(r.content, 'html.parser')
 
         matches_soup = soup.find_all('a', 'wf-module-item')
 
@@ -85,8 +71,6 @@ def find_matches(count):
 
         print(temp_dict)
         counter += 1
-
-    driver.close()
 
     matches['data'] = final_list
 
